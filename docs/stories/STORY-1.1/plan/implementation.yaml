@@ -1,0 +1,56 @@
+storyId: STORY-1.1
+createdAt: 2026-04-27T23:30:00Z
+createdBy: '@architect'
+status: pending
+complexity: STANDARD
+estimatedEffort: '1 day'
+
+dependencies:
+  - name: hilt-android
+    version: latest
+    purpose: Dependency Injection
+  - name: androidx.compose.ui
+    version: latest
+    purpose: UI Framework
+
+phases:
+  - id: phase-1
+    name: Project Initialization
+    description: Scaffold the Android project with Kotlin, Compose, and Hilt.
+    subtasks:
+      - id: '1.1'
+        description: Create base Android project with Compose and Hilt dependencies
+        service: infra
+        files:
+          - build.gradle.kts
+          - app/build.gradle.kts
+          - settings.gradle.kts
+        verification:
+          type: command
+          command: ./gradlew build
+        status: pending
+      - id: '1.2'
+        description: Configure base Application class and AndroidManifest for Hilt
+        service: infra
+        files:
+          - app/src/main/AndroidManifest.xml
+          - app/src/main/java/com/wakeupman/WakeUpManApp.kt
+        verification:
+          type: command
+          command: ./gradlew assembleDebug
+        status: pending
+
+  - id: phase-2
+    name: Core Permissions Setup
+    description: Add required manifest permissions for Camera, Foreground Service, and Notifications.
+    subtasks:
+      - id: '2.1'
+        description: Declare Android 14 permissions in Manifest
+        service: infra
+        files:
+          - app/src/main/AndroidManifest.xml
+        verification:
+          type: command
+          command: ./gradlew processDebugManifest
+        status: pending
+        notes: "Include CAMERA, FOREGROUND_SERVICE, FOREGROUND_SERVICE_CAMERA, FOREGROUND_SERVICE_SPECIAL_USE, POST_NOTIFICATIONS, VIBRATE, ACCESS_NOTIFICATION_POLICY"

@@ -1,0 +1,15 @@
+{
+  "name": "wakeupman",
+  "version": "0.1.0",
+  "description": "Created with Synkra AIOX",
+  "scripts": {
+    "dev": "echo 'Add your dev script'",
+    "build": "echo 'Add your build script'",
+    "test": "echo 'Add your test script'",
+    "lint": "echo 'Add your lint script'",
+    "typecheck": "echo 'Add your typecheck script'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
