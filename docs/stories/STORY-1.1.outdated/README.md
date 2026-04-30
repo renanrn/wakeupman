@@ -1,0 +1,1 @@
+# OUTDATED - SUPERSEDED\n\nEste plano de implementação foi substituído pelas User Stories criadas em lote pelo @sm em 2026-04-27.\nReferência atual: docs/stories/1.1-setup-project-kotlin-compose-and-manifest-permissions.story.md
