@@ -3,31 +3,81 @@ package com.wakeupman.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.NotificationCompat
-import com.wakeupman.ui.MainActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleService
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
-class VigilanceService : Service() {
+class VigilanceService : LifecycleService() {
 
     private var wakeLock: PowerManager.WakeLock? = null
     private val CHANNEL_ID = "vigilance_service_channel"
     private val NOTIFICATION_ID = 1
 
+    private lateinit var cameraExecutor: ExecutorService
+    private var imageAnalyzer: ImageAnalysis? = null
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         acquireWakeLock()
         startForegroundService()
+        
+        // Start CameraX
+        startCamera()
+        
         return START_STICKY
+    }
+
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        
+        cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+            imageAnalyzer = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+                .build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, HeadlessAnalyzer())
+                }
+
+            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+
+            try {
+                // Unbind use cases before rebinding
+                cameraProvider.unbindAll()
+
+                // Bind use cases to this LifecycleService
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, imageAnalyzer
+                )
+
+                Log.d("VigilanceService", "CameraX successfully bound to lifecycle.")
+
+            } catch (exc: Exception) {
+                Log.e("VigilanceService", "Use case binding failed", exc)
+            }
+
+        }, ContextCompat.getMainExecutor(this))
     }
 
     private fun startForegroundService() {
@@ -79,6 +129,7 @@ class VigilanceService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        cameraExecutor.shutdown()
         wakeLock?.let {
             if (it.isHeld) {
                 it.release()
@@ -86,5 +137,13 @@ class VigilanceService : Service() {
         }
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    private class HeadlessAnalyzer : ImageAnalysis.Analyzer {
+        override fun analyze(imageProxy: ImageProxy) {
+            // Placeholder: Log the image format and dimensions to verify delivery
+            Log.d("HeadlessAnalyzer", "Frame received: ${imageProxy.width}x${imageProxy.height}, format: ${imageProxy.format}")
+            
+            // CRITICAL: Must close the image to avoid memory leak and receive next frames
+            imageProxy.close()
+        }
+    }
 }
