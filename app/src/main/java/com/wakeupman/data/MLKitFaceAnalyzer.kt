@@ -7,9 +7,12 @@ import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.wakeupman.domain.DrowsinessEngine
 import javax.inject.Inject
 
-class MLKitFaceAnalyzer @Inject constructor() : ImageAnalysis.Analyzer {
+class MLKitFaceAnalyzer @Inject constructor(
+    private val drowsinessEngine: DrowsinessEngine
+) : ImageAnalysis.Analyzer {
 
     // Configure FaceDetector for speed (performance mode, classification on)
     private val options = FaceDetectorOptions.Builder()
@@ -30,10 +33,14 @@ class MLKitFaceAnalyzer @Inject constructor() : ImageAnalysis.Analyzer {
                     for (face in faces) {
                         val leftEyeOpenProb = face.leftEyeOpenProbability
                         val rightEyeOpenProb = face.rightEyeOpenProbability
+                        val pitch = face.headEulerAngleX
                         
                         if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
-                            Log.d("MLKitFaceAnalyzer", "Left Eye: $leftEyeOpenProb, Right Eye: $rightEyeOpenProb")
+                            Log.d("MLKitFaceAnalyzer", "Left Eye: $leftEyeOpenProb, Right Eye: $rightEyeOpenProb, Pitch: $pitch")
                         }
+                        
+                        // Process the pitch to detect head nods
+                        drowsinessEngine.processFaceData(pitch)
                     }
                 }
                 .addOnFailureListener { e ->
