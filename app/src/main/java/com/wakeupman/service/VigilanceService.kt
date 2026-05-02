@@ -17,10 +17,15 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class VigilanceService : LifecycleService() {
+
+    @Inject lateinit var faceAnalyzer: com.wakeupman.data.MLKitFaceAnalyzer
 
     private var wakeLock: PowerManager.WakeLock? = null
     private val CHANNEL_ID = "vigilance_service_channel"
@@ -136,8 +141,8 @@ class VigilanceService : LifecycleService() {
             }
         }
     }
-
-    private class HeadlessAnalyzer : ImageAnalysis.Analyzer {
+}
+vate class HeadlessAnalyzer : ImageAnalysis.Analyzer {
         override fun analyze(imageProxy: ImageProxy) {
             // Placeholder: Log the image format and dimensions to verify delivery
             Log.d("HeadlessAnalyzer", "Frame received: ${imageProxy.width}x${imageProxy.height}, format: ${imageProxy.format}")
