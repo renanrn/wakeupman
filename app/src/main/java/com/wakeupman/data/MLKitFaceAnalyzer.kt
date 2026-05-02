@@ -39,8 +39,8 @@ class MLKitFaceAnalyzer @Inject constructor(
                             Log.d("MLKitFaceAnalyzer", "Left Eye: $leftEyeOpenProb, Right Eye: $rightEyeOpenProb, Pitch: $pitch")
                         }
                         
-                        // Process the pitch to detect head nods
-                        drowsinessEngine.processFaceData(pitch)
+                        // Process the pitch and eye data to detect drowsiness
+                        drowsinessEngine.processFaceData(pitch, leftEyeOpenProb, rightEyeOpenProb)
                     }
                 }
                 .addOnFailureListener { e ->

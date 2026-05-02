@@ -1,57 +1,69 @@
 package com.wakeupman.domain
 
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import com.wakeupman.data.PreferencesRepository
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class DrowsinessEngineTest {
 
     private lateinit var engine: DrowsinessEngine
-
+    private val testDispatcher = StandardTestDispatcher()
+    
     @Before
     fun setUp() {
-        engine = DrowsinessEngine()
+        Dispatchers.setMain(testDispatcher)
+        
+        val mockRepo = mockk<PreferencesRepository>()
+        val flow = MutableStateFlow<Float?>(0.8f) // Default baseline 0.8
+        every { mockRepo.eyeOpenBaselineFlow } returns flow
+        
+        engine = DrowsinessEngine(mockRepo)
+        engine.start() // Sets state to ACTIVE
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun `processFaceData keeps history within 1 second`() {
-        engine.processFaceData(10f, 1000L)
-        engine.processFaceData(12f, 1500L)
-        assertEquals(2, engine.getHistorySize())
-
-        // Add an entry after 1 second, the first one should be removed
-        engine.processFaceData(15f, 2500L)
-        assertEquals(2, engine.getHistorySize())
+    fun `processFaceData detects sudden pitch drop`() {
+        engine.processFaceData(10f, null, null, 1000L) 
+        engine.processFaceData(-25f, null, null, 1500L) 
+        
+        assertEquals(VigilanceState.EMERGENCY, engine.vigilanceState.value)
     }
 
     @Test
-    fun `processFaceData detects sudden drop greater than 30 degrees`() {
-        engine.processFaceData(10f, 1000L) // Head slightly up
+    fun `processFaceData detects eyes closed for more than 2 seconds`() {
+        // threshold is 0.8 * 0.4 = 0.32
+        engine.processFaceData(0f, 0.2f, 0.2f, 1000L) // Start closing
+        assertEquals(VigilanceState.WARNING, engine.vigilanceState.value)
         
-        // This simulates a sudden nod down to -25 degrees within 1s
-        engine.processFaceData(-25f, 1500L) 
+        engine.processFaceData(0f, 0.2f, 0.2f, 2000L) // Still closed (1s)
+        assertEquals(VigilanceState.WARNING, engine.vigilanceState.value)
         
-        // Pitch drop = 10 - (-25) = 35 > 30.
-        // It triggers an emergency and clears the history to avoid multiple triggers.
-        assertEquals(0, engine.getHistorySize())
+        engine.processFaceData(0f, 0.2f, 0.2f, 3100L) // Closed for 2.1s
+        assertEquals(VigilanceState.EMERGENCY, engine.vigilanceState.value)
     }
-
+    
     @Test
-    fun `processFaceData does not detect gradual drop`() {
-        engine.processFaceData(10f, 1000L)
+    fun `processFaceData recovers to ACTIVE if eyes open`() {
+        engine.processFaceData(0f, 0.2f, 0.2f, 1000L) // Start closing
+        assertEquals(VigilanceState.WARNING, engine.vigilanceState.value)
         
-        // Simulates gradual movement, drops to -10, change is 20
-        engine.processFaceData(-10f, 1500L) 
-        assertEquals(2, engine.getHistorySize())
-        
-        // This drops to -25 but happens after 1.5 seconds from the first entry
-        // The first entry (10f at 1000L) will be removed because 2600 - 1000 = 1600 > 1000.
-        // The max pitch in window is now -10f. 
-        // Drop is -10 - (-25) = 15 < 30.
-        engine.processFaceData(-25f, 2600L) 
-        
-        // History should contain 2 items: the one at 1500L and the new one at 2600L.
-        // And emergency is NOT triggered, history remains.
-        assertEquals(2, engine.getHistorySize())
+        engine.processFaceData(0f, 0.9f, 0.9f, 1500L) // Open again
+        assertEquals(VigilanceState.ACTIVE, engine.vigilanceState.value)
     }
 }
