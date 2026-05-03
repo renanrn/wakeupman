@@ -7,17 +7,23 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
+import com.wakeupman.data.AlertManager
+import com.wakeupman.domain.DrowsinessEngine
+import com.wakeupman.domain.VigilanceState
+import com.wakeupman.ui.AlertActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Inject
@@ -26,6 +32,8 @@ import javax.inject.Inject
 class VigilanceService : LifecycleService() {
 
     @Inject lateinit var faceAnalyzer: com.wakeupman.data.MLKitFaceAnalyzer
+    @Inject lateinit var drowsinessEngine: DrowsinessEngine
+    @Inject lateinit var alertManager: AlertManager
 
     private var wakeLock: PowerManager.WakeLock? = null
     private val CHANNEL_ID = "vigilance_service_channel"
@@ -33,6 +41,7 @@ class VigilanceService : LifecycleService() {
 
     private lateinit var cameraExecutor: ExecutorService
     private var imageAnalyzer: ImageAnalysis? = null
+    private var stateObservationJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -47,6 +56,23 @@ class VigilanceService : LifecycleService() {
         
         // Start CameraX
         startCamera()
+        drowsinessEngine.start()
+        
+        stateObservationJob?.cancel()
+        stateObservationJob = CoroutineScope(Dispatchers.Main).launch {
+            drowsinessEngine.vigilanceState.collect { state ->
+                when (state) {
+                    VigilanceState.EMERGENCY -> {
+                        alertManager.startEmergencyAlert()
+                        val alertIntent = Intent(this@VigilanceService, AlertActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        }
+                        startActivity(alertIntent)
+                    }
+                    else -> alertManager.stopEmergencyAlert()
+                }
+            }
+        }
         
         return START_STICKY
     }
@@ -62,7 +88,7 @@ class VigilanceService : LifecycleService() {
                 .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, HeadlessAnalyzer())
+                    it.setAnalyzer(cameraExecutor, faceAnalyzer)
                 }
 
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
@@ -134,21 +160,14 @@ class VigilanceService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        stateObservationJob?.cancel()
+        drowsinessEngine.stop()
+        alertManager.stopEmergencyAlert()
         cameraExecutor.shutdown()
         wakeLock?.let {
             if (it.isHeld) {
                 it.release()
             }
-        }
-    }
-}
-vate class HeadlessAnalyzer : ImageAnalysis.Analyzer {
-        override fun analyze(imageProxy: ImageProxy) {
-            // Placeholder: Log the image format and dimensions to verify delivery
-            Log.d("HeadlessAnalyzer", "Frame received: ${imageProxy.width}x${imageProxy.height}, format: ${imageProxy.format}")
-            
-            // CRITICAL: Must close the image to avoid memory leak and receive next frames
-            imageProxy.close()
         }
     }
 }

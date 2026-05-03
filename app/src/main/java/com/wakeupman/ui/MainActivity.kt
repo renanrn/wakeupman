@@ -6,10 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.wakeupman.ui.calibration.CalibrationScreen
+import com.wakeupman.ui.dashboard.DashboardScreen
+import com.wakeupman.ui.history.HistoryScreen
+import com.wakeupman.ui.onboarding.BatteryOptimizationGuideScreen
+import com.wakeupman.ui.onboarding.PermissionOnboardingScreen
 import com.wakeupman.ui.theme.WakeUpManTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,12 +23,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WakeUpManTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("WakeUpMan")
+                    WakeUpManAppContent()
                 }
             }
         }
@@ -32,17 +35,53 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun WakeUpManAppContent(viewModel: MainViewModel = hiltViewModel()) {
+    var appStep by remember { mutableStateOf(AppStep.PERMISSIONS) }
+    val vigilanceState by viewModel.vigilanceState.collectAsState()
+
+    when (appStep) {
+        AppStep.PERMISSIONS -> {
+            PermissionOnboardingScreen(
+                onAllPermissionsGranted = {
+                    appStep = AppStep.BATTERY_GUIDE
+                }
+            )
+        }
+        AppStep.BATTERY_GUIDE -> {
+            BatteryOptimizationGuideScreen(
+                onContinue = {
+                    appStep = AppStep.CALIBRATION
+                }
+            )
+        }
+        AppStep.CALIBRATION -> {
+            CalibrationScreen(
+                onCalibrationFinished = {
+                    appStep = AppStep.DASHBOARD
+                }
+            )
+        }
+        AppStep.DASHBOARD -> {
+            DashboardScreen(
+                vigilanceState = vigilanceState,
+                onToggleVigilance = { enable ->
+                    viewModel.toggleVigilance(enable)
+                },
+                onNavigateToHistory = {
+                    appStep = AppStep.HISTORY
+                }
+            )
+        }
+        AppStep.HISTORY -> {
+            HistoryScreen(
+                onNavigateBack = {
+                    appStep = AppStep.DASHBOARD
+                }
+            )
+        }
+    }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WakeUpManTheme {
-        Greeting("Android")
-    }
+enum class AppStep {
+    PERMISSIONS, BATTERY_GUIDE, CALIBRATION, DASHBOARD, HISTORY
 }

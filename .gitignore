@@ -22,8 +22,18 @@ logs/
 Thumbs.db
 .idea/
 *.swp
+*.iml
 
 # AIOX Local (AIOX)
 .aiox-core/local/
 .claude/settings.local.json
 .aiox/install-log.txt
+
+# Android Specific
+.gradle/
+local.properties
+app/build/
+.cxx/
+*.apk
+*.aar
+*.jks

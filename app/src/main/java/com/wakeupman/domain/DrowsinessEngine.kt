@@ -2,6 +2,8 @@ package com.wakeupman.domain
 
 import android.util.Log
 import com.wakeupman.data.PreferencesRepository
+import com.wakeupman.data.local.IncidentDao
+import com.wakeupman.data.local.IncidentEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,8 @@ enum class VigilanceState {
 
 @Singleton
 class DrowsinessEngine @Inject constructor(
-    private val preferencesRepository: PreferencesRepository
+    private val preferencesRepository: PreferencesRepository,
+    private val incidentDao: IncidentDao
 ) {
 
     private val _vigilanceState = MutableStateFlow(VigilanceState.STANDBY)
@@ -76,7 +79,7 @@ class DrowsinessEngine @Inject constructor(
 
             if (pitchDrop > 30f) {
                 Log.w("DrowsinessEngine", "🚨 EMERGENCY: Head nod detected! Pitch drop: $pitchDrop")
-                triggerEmergency()
+                triggerEmergency("HEAD_NOD")
                 return // Stop further processing for this frame
             }
         }
@@ -110,7 +113,7 @@ class DrowsinessEngine @Inject constructor(
 
                 if (allClosedRecently && olderFramesClosed) {
                     Log.w("DrowsinessEngine", "🚨 EMERGENCY: Eyes closed for > 2s!")
-                    triggerEmergency()
+                    triggerEmergency("EYES_CLOSED")
                     return
                 } else if (allClosedRecently) {
                     // Not yet 2 seconds, but closing... maybe warning?
@@ -139,10 +142,21 @@ class DrowsinessEngine @Inject constructor(
         }
     }
 
-    private fun triggerEmergency() {
+    private fun triggerEmergency(type: String) {
         _vigilanceState.value = VigilanceState.EMERGENCY
         pitchHistory.clear()
         eyeHistory.clear()
+        
+        // Log to Room Database
+        engineScope.launch {
+            incidentDao.insertIncident(
+                IncidentEntity(
+                    timestamp = System.currentTimeMillis(),
+                    triggerType = type,
+                    baselineUsed = baselineEyeOpenness
+                )
+            )
+        }
     }
     
     // For testing purposes
