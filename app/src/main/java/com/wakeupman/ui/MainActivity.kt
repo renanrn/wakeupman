@@ -69,6 +69,9 @@ fun WakeUpManAppContent(viewModel: MainViewModel = hiltViewModel()) {
                 },
                 onNavigateToHistory = {
                     appStep = AppStep.HISTORY
+                },
+                onTriggerTestAlert = {
+                    viewModel.triggerTestAlert()
                 }
             )
         }

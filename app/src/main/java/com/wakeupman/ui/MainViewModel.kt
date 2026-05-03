@@ -23,4 +23,8 @@ class MainViewModel @Inject constructor(
             serviceManager.stopVigilance()
         }
     }
+
+    fun triggerTestAlert() {
+        drowsinessEngine.triggerSimulatedEmergency()
+    }
 }

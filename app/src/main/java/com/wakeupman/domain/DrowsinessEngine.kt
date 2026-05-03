@@ -142,6 +142,10 @@ class DrowsinessEngine @Inject constructor(
         }
     }
 
+    fun triggerSimulatedEmergency() {
+        triggerEmergency("SIMULATED_TEST")
+    }
+
     private fun triggerEmergency(type: String) {
         _vigilanceState.value = VigilanceState.EMERGENCY
         pitchHistory.clear()

@@ -13,12 +13,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import com.wakeupman.data.PreferencesRepository
+import com.wakeupman.data.local.IncidentDao
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DrowsinessEngineTest {
 
     private lateinit var engine: DrowsinessEngine
     private val testDispatcher = StandardTestDispatcher()
+    private val mockDao = mockk<IncidentDao>(relaxed = true)
     
     @Before
     fun setUp() {
@@ -28,7 +30,7 @@ class DrowsinessEngineTest {
         val flow = MutableStateFlow<Float?>(0.8f) // Default baseline 0.8
         every { mockRepo.eyeOpenBaselineFlow } returns flow
         
-        engine = DrowsinessEngine(mockRepo)
+        engine = DrowsinessEngine(mockRepo, mockDao)
         engine.start() // Sets state to ACTIVE
     }
 

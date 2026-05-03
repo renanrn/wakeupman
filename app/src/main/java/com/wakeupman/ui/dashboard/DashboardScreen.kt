@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,7 +26,8 @@ import com.wakeupman.ui.theme.*
 fun DashboardScreen(
     vigilanceState: VigilanceState,
     onToggleVigilance: (Boolean) -> Unit,
-    onNavigateToHistory: () -> Unit
+    onNavigateToHistory: () -> Unit,
+    onTriggerTestAlert: () -> Unit
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val alpha by infiniteTransition.animateFloat(
@@ -49,6 +51,9 @@ fun DashboardScreen(
                     ) 
                 },
                 actions = {
+                    IconButton(onClick = onTriggerTestAlert) {
+                        Icon(Icons.Default.Vibration, contentDescription = "Test Alert", tint = AlertYellow)
+                    }
                     IconButton(onClick = onNavigateToHistory) {
                         Icon(Icons.Default.History, contentDescription = "History", tint = Color.White)
                     }
