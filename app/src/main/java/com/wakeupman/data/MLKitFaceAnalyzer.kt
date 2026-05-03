@@ -30,18 +30,19 @@ class MLKitFaceAnalyzer @Inject constructor(
 
             detector.process(image)
                 .addOnSuccessListener { faces ->
-                    for (face in faces) {
-                        val leftEyeOpenProb = face.leftEyeOpenProbability
-                        val rightEyeOpenProb = face.rightEyeOpenProbability
-                        val pitch = face.headEulerAngleX
-                        
-                        if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
-                            Log.d("MLKitFaceAnalyzer", "Left Eye: $leftEyeOpenProb, Right Eye: $rightEyeOpenProb, Pitch: $pitch")
-                        }
-                        
-                        // Process the pitch and eye data to detect drowsiness
-                        drowsinessEngine.processFaceData(pitch, leftEyeOpenProb, rightEyeOpenProb)
+                    // Pick the first face to avoid engine confusion with multiple faces
+                    val face = faces.firstOrNull() ?: return@addOnSuccessListener
+                    
+                    val leftEyeOpenProb = face.leftEyeOpenProbability
+                    val rightEyeOpenProb = face.rightEyeOpenProbability
+                    val pitch = face.headEulerAngleX
+                    
+                    if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
+                        Log.d("MLKitFaceAnalyzer", "Face detected - Left Eye: $leftEyeOpenProb, Right Eye: $rightEyeOpenProb, Pitch: $pitch")
                     }
+                    
+                    // Process the pitch and eye data to detect drowsiness
+                    drowsinessEngine.processFaceData(pitch, leftEyeOpenProb, rightEyeOpenProb)
                 }
                 .addOnFailureListener { e ->
                     Log.e("MLKitFaceAnalyzer", "Face detection failed", e)

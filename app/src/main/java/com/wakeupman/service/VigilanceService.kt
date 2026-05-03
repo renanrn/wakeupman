@@ -15,6 +15,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.wakeupman.data.AlertManager
 import com.wakeupman.domain.DrowsinessEngine
 import com.wakeupman.domain.VigilanceState
@@ -59,7 +60,7 @@ class VigilanceService : LifecycleService() {
         drowsinessEngine.start()
         
         stateObservationJob?.cancel()
-        stateObservationJob = CoroutineScope(Dispatchers.Main).launch {
+        stateObservationJob = lifecycleScope.launch {
             drowsinessEngine.vigilanceState.collect { state ->
                 when (state) {
                     VigilanceState.EMERGENCY -> {

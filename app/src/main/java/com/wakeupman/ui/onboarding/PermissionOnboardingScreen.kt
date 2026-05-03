@@ -2,6 +2,9 @@ package com.wakeupman.ui.onboarding
 
 import android.Manifest
 import android.os.Build
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,28 +19,55 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.shouldShowRationale
+import com.wakeupman.ui.theme.AlertYellow
+import com.wakeupman.ui.theme.CarbonBlack
+import com.wakeupman.ui.theme.IndustrialGray
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionOnboardingScreen(
+    viewModel: PermissionViewModel = hiltViewModel(),
     onAllPermissionsGranted: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+
+    // Refresh permission states when user returns to the app
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.updatePermissionStates()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     val permissionsToRequest = mutableListOf(Manifest.permission.CAMERA)
-    
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     val permissionState = rememberMultiplePermissionsState(permissionsToRequest)
 
-    if (permissionState.allPermissionsGranted) {
+    // Check if everything is granted to proceed
+    if (viewModel.areAllCriticalPermissionsGranted()) {
         LaunchedEffect(Unit) {
             onAllPermissionsGranted()
         }
@@ -49,16 +79,16 @@ fun PermissionOnboardingScreen(
                 title = { 
                     Text(
                         "WAKEUPMAN SETUP", 
-                        fontWeight = FontWeight.Black,
-                        color = Color.Yellow
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = AlertYellow
                     ) 
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Black
+                    containerColor = CarbonBlack
                 )
             )
         },
-        containerColor = Color.Black
+        containerColor = CarbonBlack
     ) { padding ->
         Column(
             modifier = Modifier
@@ -72,7 +102,7 @@ fun PermissionOnboardingScreen(
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = null,
-                    tint = Color.Yellow,
+                    tint = AlertYellow,
                     modifier = Modifier.size(64.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -80,12 +110,11 @@ fun PermissionOnboardingScreen(
                     "Critical Safety Access",
                     style = MaterialTheme.typography.headlineMedium,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "To monitor your safety while driving, we need the following permissions:",
+                    "To monitor your safety while driving, we need the following permissions and system settings:",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
@@ -97,7 +126,7 @@ fun PermissionOnboardingScreen(
                     icon = Icons.Default.CameraAlt,
                     title = "Camera Access",
                     description = "Used for real-time drowsiness detection.",
-                    isGranted = permissionState.permissions.any { it.permission == Manifest.permission.CAMERA && it.status.isGranted }
+                    isGranted = uiState.isCameraGranted
                 )
                 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -105,33 +134,55 @@ fun PermissionOnboardingScreen(
                         icon = Icons.Default.Notifications,
                         title = "Notifications",
                         description = "Required for the background monitoring service.",
-                        isGranted = permissionState.permissions.any { it.permission == Manifest.permission.POST_NOTIFICATIONS && it.status.isGranted }
+                        isGranted = uiState.isNotificationsGranted
                     )
                 }
 
                 PermissionItem(
                     icon = Icons.Default.PowerSettingsNew,
                     title = "Battery Optimization",
-                    description = "Must be disabled so the app isn't killed in background.",
-                    isGranted = false // This usually requires an Intent, handled later
+                    description = "Must be set to 'Unrestricted' for background resilience.",
+                    isGranted = uiState.isBatteryOptimizationDisabled
                 )
             }
 
+            val allPermissionsGranted = permissionState.allPermissionsGranted
+            val shouldShowSettings = !allPermissionsGranted && !permissionState.shouldShowRationale
+
             Button(
-                onClick = { permissionState.launchMultiplePermissionRequest() },
+                onClick = { 
+                    if (!allPermissionsGranted) {
+                        if (shouldShowSettings) {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            permissionState.launchMultiplePermissionRequest()
+                        }
+                    } else if (!uiState.isBatteryOptimizationDisabled) {
+                        // If only battery is missing, we could navigate or open battery settings directly
+                        onAllPermissionsGranted()
+                    } else {
+                        onAllPermissionsGranted()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Yellow,
-                    contentColor = Color.Black
+                    containerColor = AlertYellow,
+                    contentColor = CarbonBlack
                 ),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(
-                    "GRANT ACCESS",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    text = when {
+                        shouldShowSettings -> "OPEN APP SETTINGS"
+                        !allPermissionsGranted -> "GRANT ACCESS"
+                        else -> "NEXT STEP"
+                    },
+                    style = MaterialTheme.typography.headlineMedium.copy(fontSize = 18.sp)
                 )
             }
         }
@@ -149,7 +200,7 @@ fun PermissionItem(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = if (isGranted) Color(0xFF1B5E20) else Color(0xFF1A1A1A),
+                color = if (isGranted) Color(0xFF1B5E20) else IndustrialGray,
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(16.dp),
