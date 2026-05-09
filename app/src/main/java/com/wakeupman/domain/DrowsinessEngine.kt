@@ -67,7 +67,7 @@ class DrowsinessEngine @Inject constructor(
         rightEyeOpenProb: Float? = null, 
         timestamp: Long = System.currentTimeMillis()
     ) {
-        if (_vigilanceState.value == VigilanceState.STANDBY) return
+        if (_vigilanceState.value == VigilanceState.STANDBY || _vigilanceState.value == VigilanceState.EMERGENCY) return
 
         // 1. Process Head Pitch (Nod detection)
         pitchHistory.add(PitchData(timestamp, pitch))

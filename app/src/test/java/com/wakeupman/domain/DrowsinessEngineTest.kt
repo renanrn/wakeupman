@@ -14,6 +14,9 @@ import org.junit.Before
 import org.junit.Test
 import com.wakeupman.data.PreferencesRepository
 import com.wakeupman.data.local.IncidentDao
+import android.util.Log
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DrowsinessEngineTest {
@@ -24,6 +27,11 @@ class DrowsinessEngineTest {
     
     @Before
     fun setUp() {
+        mockkStatic(Log::class)
+        every { Log.d(any<String>(), any<String>()) } returns 0
+        every { Log.w(any<String>(), any<String>()) } returns 0
+        every { Log.e(any<String>(), any<String>()) } returns 0
+
         Dispatchers.setMain(testDispatcher)
         
         val mockRepo = mockk<PreferencesRepository>()
@@ -37,6 +45,7 @@ class DrowsinessEngineTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        unmockkStatic(Log::class)
     }
 
     @Test

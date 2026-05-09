@@ -13,9 +13,10 @@
 WakeUpMan is a critical safety tool for drivers, guards, and night workers. Drowsiness is a leading cause of fatal accidents. This solution focuses on the **aggressiveness of the alert** and **background resilience**. By using Google ML Kit for on-device computer vision, it ensures instant, private, and reliable monitoring.
 
 ### Change Log
-| Date       | Version | Description              | Author |
-|------------|---------|--------------------------|--------|
-| 2026-04-27 | 1.0     | Initial PRD Creation     | Morgan |
+| Date       | Version | Description                                              | Author     |
+|------------|---------|----------------------------------------------------------|------------|
+| 2026-04-27 | 1.0     | Initial PRD Creation                                     | Morgan     |
+| 2026-05-03 | 1.1     | Added Dynamic Notification and Intent Fallback reqs      | Gemini CLI |
 
 ---
 
@@ -30,6 +31,8 @@ WakeUpMan is a critical safety tool for drivers, guards, and night workers. Drow
 - **FR4: Resilient Background Mode.** Maintain active monitoring via a `camera` type Foreground Service.
 - **FR5: Dynamic Calibration.** Initial calibration step to define the user's "awake" baseline.
 - **FR6: Permission Management.** Onboarding flow for Camera, Notifications, and Battery Optimization bypass.
+- **FR7: Dynamic Emergency Notification.** The FGS notification must visually transition to a critical state (Red color, urgent text) during alerts and utilize `FullScreenIntent` to reliably wake the device and bypass lock screen barriers.
+- **FR8: Intent Compatibility Fallbacks.** Navigation to system settings (like Battery Optimization) must implement multi-level fallbacks to ensure compatibility across different Android OEMs (Samsung, Xiaomi, etc.).
 
 ### Non-Functional Requirements
 - **NFR1: On-Device Processing.** 100% local analysis (Privacy first).
