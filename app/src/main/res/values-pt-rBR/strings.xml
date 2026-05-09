@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">WakeUpMan</string>
+    
+    <!-- Dashboard -->
+    <string name="dashboard_title">WAKEUPMAN</string>
+    <string name="test_alert_desc">Teste de Alerta</string>
+    <string name="history_desc">Histórico</string>
+    <string name="status_standby_msg">Vigilância Desativada</string>
+    <string name="status_active_msg">Sistema Monitorando...</string>
+    <string name="status_warning_msg">AVISO DE FADIGA!</string>
+    <string name="status_emergency_msg">ALERTA CRÍTICO!</string>
+    <string name="engage">ATIVAR</string>
+    <string name="disengage">DESATIVAR</string>
+    <string name="dashboard_footer">Certifique-se de que o dispositivo está fixado com uma visão clara do seu rosto.</string>
+    
+    <!-- States -->
+    <string name="state_standby">STANDBY</string>
+    <string name="state_active">ATIVO</string>
+    <string name="state_warning">AVISO</string>
+    <string name="state_emergency">EMERGÊNCIA</string>
+
+    <!-- Onboarding / Permissions -->
+    <string name="onboarding_title">CONFIGURAÇÃO WAKEUPMAN</string>
+    <string name="safety_access_title">Acesso Crítico de Segurança</string>
+    <string name="safety_access_desc">Para monitorar sua segurança enquanto dirige, precisamos das seguintes permissões e configurações do sistema:</string>
+    <string name="camera_access_title">Acesso à Câmera</string>
+    <string name="camera_access_desc">Usado para detecção de sonolência em tempo real.</string>
+    <string name="notifications_title">Notificações</string>
+    <string name="notifications_desc">Necessário para o serviço de monitoramento em segundo plano.</string>
+    <string name="battery_optimization_title">Otimização de Bateria</string>
+    <string name="battery_optimization_desc">Deve ser definido como \'Sem Restrições\' para resiliência em segundo plano.</string>
+    <string name="btn_open_app_settings">CONFIGURAÇÕES DO APP</string>
+    <string name="btn_grant_access">CONCEDER ACESSO</string>
+    <string name="btn_next_step">PRÓXIMO PASSO</string>
+
+    <!-- Battery Guide -->
+    <string name="battery_guide_title">NÃO DEIXE O SISTEMA COMPROMETER SUA SEGURANÇA</string>
+    <string name="battery_guide_desc">O Android costuma encerrar apps em segundo plano para economizar bateria. Para o WakeUpMan monitorar você continuamente, você deve defini-lo como \'Sem Restrições\'.</string>
+    <string name="instructions_title">Instruções:</string>
+    <string name="instruction_1">1. Clique no botão abaixo</string>
+    <string name="instruction_2">2. Encontre \'WakeUpMan\'</string>
+    <string name="instruction_3">3. Selecione \'Sem Restrições\' ou \'Não Otimizar\'</string>
+    <string name="btn_open_battery_settings">ABRIR CONFIGURAÇÕES DE BATERIA</string>
+    <string name="btn_continue">JÁ FIZ, CONTINUAR</string>
+
+    <!-- Alert -->
+    <string name="btn_im_awake">ESTOU ACORDADO</string>
+
+    <!-- History -->
+    <string name="incident_log_title">LOG DE INCIDENTES</string>
+    <string name="no_incidents">Nenhum incidente registrado.</string>
+    <string name="alert_eyes_closed">Alerta: Olhos Fechados</string>
+    <string name="alert_head_nod">Alerta: Cabeça Baixa</string>
+    <string name="baseline_label">Base: %s</string>
+    <string name="back_desc">Voltar</string>
+    <string name="clear_desc">Limpar</string>
+
+    <!-- Notifications -->
+    <string name="notif_title_active">WakeUpMan</string>
+    <string name="notif_content_active">Vigilância Ativa - Monitorando sonolência</string>
+    <string name="notif_title_emergency">🚨 ALERTA CRÍTICO!</string>
+    <string name="notif_content_emergency">ACORDE! Sonolência detectada!</string>
+</resources>

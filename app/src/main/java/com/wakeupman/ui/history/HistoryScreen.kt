@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import com.wakeupman.R
 import com.wakeupman.data.local.IncidentEntity
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,15 +34,15 @@ fun HistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("INCIDENT LOG", fontWeight = FontWeight.Bold, color = Color.Yellow) },
+                title = { Text(stringResource(R.string.incident_log_title), fontWeight = FontWeight.Bold, color = Color.Yellow) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back_desc), tint = Color.White)
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.clearHistory() }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Clear", tint = Color.White)
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.clear_desc), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
@@ -50,7 +52,7 @@ fun HistoryScreen(
     ) { padding ->
         if (incidents.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("No incidents recorded.", color = Color.Gray)
+                Text(stringResource(R.string.no_incidents), color = Color.Gray)
             }
         } else {
             LazyColumn(
@@ -81,7 +83,7 @@ fun IncidentItem(incident: IncidentEntity) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (incident.triggerType == "EYES_CLOSED") "Eyes Closed Alert" else "Head Nod Alert",
+                    text = if (incident.triggerType == "EYES_CLOSED") stringResource(R.string.alert_eyes_closed) else stringResource(R.string.alert_head_nod),
                     color = Color.Red,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -89,7 +91,7 @@ fun IncidentItem(incident: IncidentEntity) {
                 Text(text = dateString, color = Color.Gray, fontSize = 12.sp)
             }
             Text(
-                text = "Base: ${"%.2f".format(incident.baselineUsed)}",
+                text = stringResource(R.string.baseline_label, "%.2f".format(incident.baselineUsed)),
                 color = Color.Yellow,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold

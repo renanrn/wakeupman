@@ -32,6 +32,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.shouldShowRationale
+import androidx.compose.ui.res.stringResource
+import com.wakeupman.R
 import com.wakeupman.ui.theme.AlertYellow
 import com.wakeupman.ui.theme.CarbonBlack
 import com.wakeupman.ui.theme.IndustrialGray
@@ -78,7 +80,7 @@ fun PermissionOnboardingScreen(
             CenterAlignedTopAppBar(
                 title = { 
                     Text(
-                        "WAKEUPMAN SETUP", 
+                        stringResource(R.string.onboarding_title), 
                         style = MaterialTheme.typography.headlineMedium,
                         color = AlertYellow
                     ) 
@@ -107,14 +109,14 @@ fun PermissionOnboardingScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "Critical Safety Access",
+                    stringResource(R.string.safety_access_title),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "To monitor your safety while driving, we need the following permissions and system settings:",
+                    stringResource(R.string.safety_access_desc),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
@@ -124,24 +126,24 @@ fun PermissionOnboardingScreen(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 PermissionItem(
                     icon = Icons.Default.CameraAlt,
-                    title = "Camera Access",
-                    description = "Used for real-time drowsiness detection.",
+                    title = stringResource(R.string.camera_access_title),
+                    description = stringResource(R.string.camera_access_desc),
                     isGranted = uiState.isCameraGranted
                 )
                 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     PermissionItem(
                         icon = Icons.Default.Notifications,
-                        title = "Notifications",
-                        description = "Required for the background monitoring service.",
+                        title = stringResource(R.string.notifications_title),
+                        description = stringResource(R.string.notifications_desc),
                         isGranted = uiState.isNotificationsGranted
                     )
                 }
 
                 PermissionItem(
                     icon = Icons.Default.PowerSettingsNew,
-                    title = "Battery Optimization",
-                    description = "Must be set to 'Unrestricted' for background resilience.",
+                    title = stringResource(R.string.battery_optimization_title),
+                    description = stringResource(R.string.battery_optimization_desc),
                     isGranted = uiState.isBatteryOptimizationDisabled
                 )
             }
@@ -178,9 +180,9 @@ fun PermissionOnboardingScreen(
             ) {
                 Text(
                     text = when {
-                        shouldShowSettings -> "OPEN APP SETTINGS"
-                        !allPermissionsGranted -> "GRANT ACCESS"
-                        else -> "NEXT STEP"
+                        shouldShowSettings -> stringResource(R.string.btn_open_app_settings)
+                        !allPermissionsGranted -> stringResource(R.string.btn_grant_access)
+                        else -> stringResource(R.string.btn_next_step)
                     },
                     style = MaterialTheme.typography.headlineMedium.copy(fontSize = 18.sp)
                 )

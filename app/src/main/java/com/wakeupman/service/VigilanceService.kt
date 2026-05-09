@@ -81,8 +81,18 @@ class VigilanceService : LifecycleService() {
     private fun updateNotification(state: VigilanceState) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         
-        val title = if (state == VigilanceState.EMERGENCY) "🚨 CRITICAL ALERT!" else "WakeUpMan"
-        val content = if (state == VigilanceState.EMERGENCY) "WAKE UP! Drowsiness detected!" else "Vigilance Active - Monitoring drowsiness"
+        val title = if (state == VigilanceState.EMERGENCY) {
+            getString(com.wakeupman.R.string.notif_title_emergency)
+        } else {
+            getString(com.wakeupman.R.string.notif_title_active)
+        }
+        
+        val content = if (state == VigilanceState.EMERGENCY) {
+            getString(com.wakeupman.R.string.notif_content_emergency)
+        } else {
+            getString(com.wakeupman.R.string.notif_content_active)
+        }
+        
         val color = if (state == VigilanceState.EMERGENCY) ContextCompat.getColor(this, android.R.color.holo_red_dark) else ContextCompat.getColor(this, android.R.color.black)
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)

@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.wakeupman.R
 import com.wakeupman.domain.VigilanceState
 import com.wakeupman.ui.theme.*
 
@@ -45,17 +47,17 @@ fun DashboardScreen(
             CenterAlignedTopAppBar(
                 title = { 
                     Text(
-                        "WAKEUPMAN", 
+                        stringResource(R.string.dashboard_title), 
                         style = MaterialTheme.typography.headlineMedium,
                         color = AlertYellow
                     ) 
                 },
                 actions = {
                     IconButton(onClick = onTriggerTestAlert) {
-                        Icon(Icons.Default.Vibration, contentDescription = "Test Alert", tint = AlertYellow)
+                        Icon(Icons.Default.Vibration, contentDescription = stringResource(R.string.test_alert_desc), tint = AlertYellow)
                     }
                     IconButton(onClick = onNavigateToHistory) {
-                        Icon(Icons.Default.History, contentDescription = "History", tint = Color.White)
+                        Icon(Icons.Default.History, contentDescription = stringResource(R.string.history_desc), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = CarbonBlack)
@@ -88,7 +90,12 @@ fun DashboardScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = vigilanceState.name,
+                        text = when (vigilanceState) {
+                            VigilanceState.STANDBY -> stringResource(R.string.state_standby)
+                            VigilanceState.ACTIVE -> stringResource(R.string.state_active)
+                            VigilanceState.WARNING -> stringResource(R.string.state_warning)
+                            VigilanceState.EMERGENCY -> stringResource(R.string.state_emergency)
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         color = if (vigilanceState == VigilanceState.STANDBY) Color.White else CarbonBlack
                     )
@@ -96,10 +103,10 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = when (vigilanceState) {
-                        VigilanceState.STANDBY -> "Vigilance is OFFLINE"
-                        VigilanceState.ACTIVE -> "System Monitoring..."
-                        VigilanceState.WARNING -> "FATIGUE WARNING!"
-                        VigilanceState.EMERGENCY -> "CRITICAL ALERT!"
+                        VigilanceState.STANDBY -> stringResource(R.string.status_standby_msg)
+                        VigilanceState.ACTIVE -> stringResource(R.string.status_active_msg)
+                        VigilanceState.WARNING -> stringResource(R.string.status_warning_msg)
+                        VigilanceState.EMERGENCY -> stringResource(R.string.status_emergency_msg)
                     },
                     style = MaterialTheme.typography.bodyLarge,
                     color = when (vigilanceState) {
@@ -131,7 +138,7 @@ fun DashboardScreen(
                         modifier = Modifier.size(64.dp)
                     )
                     Text(
-                        text = if (vigilanceState == VigilanceState.STANDBY) "ENGAGE" else "DISENGAGE",
+                        text = if (vigilanceState == VigilanceState.STANDBY) stringResource(R.string.engage) else stringResource(R.string.disengage),
                         style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp)
                     )
                 }
@@ -143,7 +150,7 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Ensure device is mounted with a clear view of your face.",
+                    text = stringResource(R.string.dashboard_footer),
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.LightGray,
                     textAlign = TextAlign.Center,

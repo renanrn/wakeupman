@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.wakeupman.R
 import com.wakeupman.domain.DrowsinessEngine
 import com.wakeupman.domain.VigilanceState
 import com.wakeupman.ui.theme.WakeUpManTheme
@@ -75,7 +77,7 @@ fun AlertScreen(onAwakeClicked: () -> Unit) {
             )
         ) {
             Text(
-                text = "I'M AWAKE",
+                text = stringResource(R.string.btn_im_awake),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )

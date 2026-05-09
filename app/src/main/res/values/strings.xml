@@ -1,3 +1,63 @@
 <resources>
     <string name="app_name">WakeUpMan</string>
+    
+    <!-- Dashboard -->
+    <string name="dashboard_title">WAKEUPMAN</string>
+    <string name="test_alert_desc">Test Alert</string>
+    <string name="history_desc">History</string>
+    <string name="status_standby_msg">Vigilance is OFFLINE</string>
+    <string name="status_active_msg">System Monitoring...</string>
+    <string name="status_warning_msg">FATIGUE WARNING!</string>
+    <string name="status_emergency_msg">CRITICAL ALERT!</string>
+    <string name="engage">ENGAGE</string>
+    <string name="disengage">DISENGAGE</string>
+    <string name="dashboard_footer">Ensure device is mounted with a clear view of your face.</string>
+    
+    <!-- States -->
+    <string name="state_standby">STANDBY</string>
+    <string name="state_active">ACTIVE</string>
+    <string name="state_warning">WARNING</string>
+    <string name="state_emergency">EMERGENCY</string>
+
+    <!-- Onboarding / Permissions -->
+    <string name="onboarding_title">WAKEUPMAN SETUP</string>
+    <string name="safety_access_title">Critical Safety Access</string>
+    <string name="safety_access_desc">To monitor your safety while driving, we need the following permissions and system settings:</string>
+    <string name="camera_access_title">Camera Access</string>
+    <string name="camera_access_desc">Used for real-time drowsiness detection.</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_desc">Required for the background monitoring service.</string>
+    <string name="battery_optimization_title">Battery Optimization</string>
+    <string name="battery_optimization_desc">Must be set to \'Unrestricted\' for background resilience.</string>
+    <string name="btn_open_app_settings">OPEN APP SETTINGS</string>
+    <string name="btn_grant_access">GRANT ACCESS</string>
+    <string name="btn_next_step">NEXT STEP</string>
+
+    <!-- Battery Guide -->
+    <string name="battery_guide_title">DON\'T LET THE SYSTEM KILL YOUR SAFETY</string>
+    <string name="battery_guide_desc">Android often kills apps running in background to save battery. For WakeUpMan to monitor you continuously, you must set it to \'Unrestricted\'.</string>
+    <string name="instructions_title">Instructions:</string>
+    <string name="instruction_1">1. Click the button below</string>
+    <string name="instruction_2">2. Find \'WakeUpMan\'</string>
+    <string name="instruction_3">3. Select \'Unrestricted\' or \'Don\'t Optimize\'</string>
+    <string name="btn_open_battery_settings">OPEN BATTERY SETTINGS</string>
+    <string name="btn_continue">I\'VE DONE IT, CONTINUE</string>
+
+    <!-- Alert -->
+    <string name="btn_im_awake">I\'M AWAKE</string>
+
+    <!-- History -->
+    <string name="incident_log_title">INCIDENT LOG</string>
+    <string name="no_incidents">No incidents recorded.</string>
+    <string name="alert_eyes_closed">Eyes Closed Alert</string>
+    <string name="alert_head_nod">Head Nod Alert</string>
+    <string name="baseline_label">Base: %s</string>
+    <string name="back_desc">Back</string>
+    <string name="clear_desc">Clear</string>
+
+    <!-- Notifications -->
+    <string name="notif_title_active">WakeUpMan</string>
+    <string name="notif_content_active">Vigilance Active - Monitoring drowsiness</string>
+    <string name="notif_title_emergency">🚨 CRITICAL ALERT!</string>
+    <string name="notif_content_emergency">WAKE UP! Drowsiness detected!</string>
 </resources>

@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.compose.ui.res.stringResource
+import com.wakeupman.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BatteryAlert
@@ -52,14 +54,14 @@ fun BatteryOptimizationGuideScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    "DON'T LET THE SYSTEM KILL YOUR SAFETY",
+                    stringResource(R.string.battery_guide_title),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "Android often kills apps running in background to save battery. For WakeUpMan to monitor you continuously, you must set it to 'Unrestricted'.",
+                    stringResource(R.string.battery_guide_desc),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
@@ -71,11 +73,11 @@ fun BatteryOptimizationGuideScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Instructions:", fontWeight = FontWeight.Bold, color = Color.Yellow)
+                    Text(stringResource(R.string.instructions_title), fontWeight = FontWeight.Bold, color = Color.Yellow)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("1. Click the button below", color = Color.White)
-                    Text("2. Find 'WakeUpMan'", color = Color.White)
-                    Text("3. Select 'Unrestricted' or 'Don't Optimize'", color = Color.White)
+                    Text(stringResource(R.string.instruction_1), color = Color.White)
+                    Text(stringResource(R.string.instruction_2), color = Color.White)
+                    Text(stringResource(R.string.instruction_3), color = Color.White)
                 }
             }
 
@@ -102,7 +104,7 @@ fun BatteryOptimizationGuideScreen(
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
                 ) {
-                    Text("OPEN BATTERY SETTINGS", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.btn_open_battery_settings), fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(Icons.Default.ChevronRight, contentDescription = null)
                 }
@@ -112,7 +114,7 @@ fun BatteryOptimizationGuideScreen(
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow, contentColor = Color.Black)
                 ) {
-                    Text("I'VE DONE IT, CONTINUE", fontWeight = FontWeight.Black)
+                    Text(stringResource(R.string.btn_continue), fontWeight = FontWeight.Black)
                 }
             }
         }
